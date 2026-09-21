@@ -27,7 +27,7 @@ button{border:1px solid var(--line);background:#283243;color:var(--text);border-
 <body>
 <div class="wrap">
   <div class="head">
-    <div><h1>One Man's Trash — Exchange & Shop Calculator</h1><p>Enter your speedups, choose what to exchange, then plan purchases with your available Caravan Chits.</p></div>
+    <div><h1>One Man's Trash — Exchange & Shop Calculator</h1><p>Enter your speedups, choose what to exchange, then plan purchases with your available Caravan Chit.</p></div>
     <button class="reset" onclick="resetAll()">Reset All</button>
   </div>
 
@@ -35,15 +35,15 @@ button{border:1px solid var(--line);background:#283243;color:var(--text);border-
     <div class="stat"><small>Building Total</small><strong id="bTotal" class="blue">0.00 d</strong></div>
     <div class="stat"><small>Research Total</small><strong id="rTotal" class="blue">0.00 d</strong></div>
     <div class="stat"><small>Total Exchanged</small><strong id="exTotal" class="green">0.00 d</strong></div>
-    <div class="stat"><small>Chits Received</small><strong id="chits" class="gold">0</strong></div>
+    <div class="stat"><small>Caravan Chit Received</small><strong id="chits" class="gold">0</strong></div>
     <div class="stat"><small>Shop Cost</small><strong id="shopCostTop" class="orange">0</strong></div>
-    <div class="stat"><small>Chits After Shop</small><strong id="afterShopTop" class="green">0</strong></div>
+    <div class="stat"><small>Caravan Chit After Shop</small><strong id="afterShopTop" class="green">0</strong></div>
   </div>
 
   <div class="compactbar">
-    <div class="field"><label>Chits / exchanged minute</label><input id="rate" type="number" min="0" step="0.01" value="1" oninput="calc()"></div>
-    <div class="field"><label>Existing Caravan Chits</label><input id="existingChits" type="number" min="0" step="1" value="0" oninput="calc()"></div>
-    <span class="hint">Default: 1 minute = 1 Chit • 3h = 180 Chits</span>
+    <div class="field"><label>Caravan Chit / exchanged minute</label><input id="rate" type="number" min="0" step="0.01" value="1" oninput="calc()"></div>
+    <div class="field"><label>Existing Caravan Chit</label><input id="existingChits" type="number" min="0" step="1" value="0" oninput="calc()"></div>
+    <span class="hint">Default: 1 minute = 1 Caravan Chit • 3h = 180 Caravan Chit</span>
   </div>
 
   <div class="main">
@@ -88,10 +88,10 @@ button{border:1px solid var(--line);background:#283243;color:var(--text);border-
         </div>
       </div>
       <div class="bottomSummary">
-        <div class="stat"><small>Available</small><strong id="shopAvailable" class="gold">0</strong></div>
-        <div class="stat"><small>Shop Cost</small><strong id="shopCost" class="orange">0</strong></div>
-        <div class="stat"><small>Chits Left</small><strong id="shopLeft" class="green">0</strong></div>
-        <div class="stat"><small>Extra Needed</small><strong id="shopNeed" class="red">0</strong></div>
+        <div class="stat"><small>Caravan Chit Available</small><strong id="shopAvailable" class="gold">0</strong></div>
+        <div class="stat"><small>Shop Cost (Caravan Chit)</small><strong id="shopCost" class="orange">0</strong></div>
+        <div class="stat"><small>Caravan Chit Left</small><strong id="shopLeft" class="green">0</strong></div>
+        <div class="stat"><small>Extra Caravan Chit Needed</small><strong id="shopNeed" class="red">0</strong></div>
       </div>
       <div class="status" id="shopStatus"></div>
     </section>
@@ -101,8 +101,8 @@ button{border:1px solid var(--line);background:#283243;color:var(--text);border-
     <div class="resultCell"><small>Building remaining</small><b id="sumBLeft">0.00 days</b></div>
     <div class="resultCell"><small>Research remaining</small><b id="sumRLeft">0.00 days</b></div>
     <div class="resultCell"><small>Total remaining</small><b id="sumLeft">0.00 days</b></div>
-    <div class="resultCell"><small>Total Chits available</small><b id="fullAvailable" class="gold">0</b></div>
-    <div class="resultCell"><small>Chits after shopping</small><b id="fullLeft">0</b></div>
+    <div class="resultCell"><small>Total Caravan Chit Available</small><b id="fullAvailable" class="gold">0</b></div>
+    <div class="resultCell"><small>Caravan Chit After Shopping</small><b id="fullLeft">0</b></div>
     <div class="resultCell"><small>Extra exchange required</small><b id="extraExchange">0.00 days</b></div>
   </div>
 
@@ -135,7 +135,7 @@ function fmt(n){return Math.round(n).toLocaleString('en-US')}
 function days(min){return (min/1440).toFixed(2)+' days'}
 function nice(min){if(min===0)return '0m';const d=Math.floor(min/1440),h=Math.floor((min%1440)/60),m=Math.round(min%60);return [d?d+'d':'',h?h+'h':'',m?m+'m':''].filter(Boolean).join(' ')}
 function makeRows(type){const body=document.getElementById(type+'Rows');body.innerHTML='';defs.forEach((d,i)=>{const el=document.createElement('div');el.className='speedItem';el.innerHTML=`<div class="speedLabel"><span>${d.label}</span><span class="limitBadge">Limit <b id="${type}LimitUse${i}">0</b> / ${EXCHANGE_LIMIT}</span></div><div class="miniGrid"><div class="miniField"><label>Owned</label><input id="${type}Own${i}" type="number" min="0" step="1" value="0" oninput="clampExchange('${type}',${i});calc()"></div><div class="miniField"><label>Exchange</label><div class="exchangeInput"><input id="${type}Ex${i}" type="number" min="0" max="${EXCHANGE_LIMIT}" step="1" value="0" oninput="clampExchange('${type}',${i});calc()"><button class="maxBtn" type="button" onclick="maxExchange('${type}',${i})">MAX</button></div></div></div><div class="speedFoot"><span>Left <b id="${type}Left${i}">0</b></span><span id="${type}Time${i}">0m</span></div>`;body.appendChild(el)})}
-function makeShopRows(){['trainingRows','healingRows','resourceRows'].forEach(id=>document.getElementById(id).innerHTML='');shopItems.forEach((item,i)=>{const target=document.getElementById(item.category.toLowerCase()+'Rows');const el=document.createElement('div');el.className='shopItem';el.innerHTML=`<div class="shopItemTop"><div class="shopName">${item.name}</div><div class="shopBadges">${item.discount==='—'?'':`<span class="discount">${item.discount}</span>`}<span class="shopLimitBadge"><b id="shopLimitUse${i}">0</b> / ${fmt(item.limit)}</span></div></div><div class="shopInfo"><div><small>Price</small><b>${fmt(item.price)} Chits</b></div><div><small>Purchase Limit</small><b>${fmt(item.limit)}</b></div></div><div class="buyLine"><label>Buy</label><input id="shopQty${i}" type="number" min="0" max="${item.limit}" step="1" value="0" oninput="clampShop(${i});calc()"><button class="shopMaxBtn" type="button" onclick="maxShop(${i})">MAX</button><span class="itemCost" id="shopItemCost${i}">0</span></div>`;target.appendChild(el)})}
+function makeShopRows(){['trainingRows','healingRows','resourceRows'].forEach(id=>document.getElementById(id).innerHTML='');shopItems.forEach((item,i)=>{const target=document.getElementById(item.category.toLowerCase()+'Rows');const el=document.createElement('div');el.className='shopItem';el.innerHTML=`<div class="shopItemTop"><div class="shopName">${item.name}</div><div class="shopBadges">${item.discount==='—'?'':`<span class="discount">${item.discount}</span>`}<span class="shopLimitBadge"><b id="shopLimitUse${i}">0</b> / ${fmt(item.limit)}</span></div></div><div class="shopInfo"><div><small>Price</small><b>${fmt(item.price)} Caravan Chit</b></div><div><small>Purchase Limit</small><b>${fmt(item.limit)}</b></div></div><div class="buyLine"><label>Buy</label><input id="shopQty${i}" type="number" min="0" max="${item.limit}" step="1" value="0" oninput="clampShop(${i});calc()"><button class="shopMaxBtn" type="button" onclick="maxShop(${i})">MAX</button><span class="itemCost" id="shopItemCost${i}">0</span></div>`;target.appendChild(el)})}
 function clampExchange(type,i){let o=Math.max(0,+document.getElementById(type+'Own'+i).value||0),e=Math.max(0,+document.getElementById(type+'Ex'+i).value||0);const max=Math.min(o,EXCHANGE_LIMIT);if(e>max)document.getElementById(type+'Ex'+i).value=max;if(e<0)document.getElementById(type+'Ex'+i).value=0}
 function maxExchange(type,i){const o=Math.max(0,+document.getElementById(type+'Own'+i).value||0);document.getElementById(type+'Ex'+i).value=Math.min(o,EXCHANGE_LIMIT);calc()}
 function clampShop(i){const el=document.getElementById('shopQty'+i);let q=Math.floor(+el.value||0);q=Math.max(0,Math.min(shopItems[i].limit,q));el.value=q}
@@ -169,7 +169,7 @@ function calc(){const b=calcType('building'),r=calcType('research'),rate=Math.ma
  document.getElementById('bTotal').textContent=nice(b.total);document.getElementById('rTotal').textContent=nice(r.total);document.getElementById('exTotal').textContent=((b.ex+r.ex)/1440).toFixed(2)+' d';document.getElementById('chits').textContent=fmt(received);document.getElementById('shopCostTop').textContent=fmt(shop.cost);document.getElementById('afterShopTop').textContent=(left>=0?fmt(left):'-'+fmt(Math.abs(left)));document.getElementById('afterShopTop').className=left>=0?'green':'red';
  document.getElementById('bLeft').textContent=nice(b.left);document.getElementById('rLeft').textContent=nice(r.left);document.getElementById('bEx').textContent=days(b.ex);document.getElementById('rEx').textContent=days(r.ex);document.getElementById('sumBEx').textContent=days(b.ex);document.getElementById('sumREx').textContent=days(r.ex);document.getElementById('sumBLeft').textContent=nice(b.left);document.getElementById('sumRLeft').textContent=nice(r.left);document.getElementById('sumLeft').textContent=nice(b.left+r.left);document.getElementById('sumChits').textContent=fmt(received);
  document.getElementById('shopAvailable').textContent=fmt(available);document.getElementById('shopCost').textContent=fmt(shop.cost);document.getElementById('shopLeft').textContent=fmt(Math.max(0,left));document.getElementById('shopNeed').textContent=fmt(need);document.getElementById('trainingBought').textContent=(shop.trainingMin/1440).toFixed(2)+' d';document.getElementById('healingBought').textContent=(shop.healingMin/1440).toFixed(2)+' d';
- const status=document.getElementById('shopStatus');if(shop.cost===0)status.innerHTML='<span class="pill">No shop items selected</span>';else if(left>=0)status.innerHTML=`<span class="pill good">✓ Enough Chits — ${fmt(left)} left</span>`;else status.innerHTML=`<span class="pill bad">Need ${fmt(need)} more Chits • ${days(extraMin)} extra exchange</span>`;
+ const status=document.getElementById('shopStatus');if(shop.cost===0)status.innerHTML='<span class="pill">No shop items selected</span>';else if(left>=0)status.innerHTML=`<span class="pill good">✓ Enough Caravan Chit — ${fmt(left)} left</span>`;else status.innerHTML=`<span class="pill bad">Need ${fmt(need)} more Caravan Chit • ${days(extraMin)} extra exchange</span>`;
  document.getElementById('fullReceived').textContent=fmt(received);document.getElementById('fullExisting').textContent=fmt(existing);document.getElementById('fullAvailable').textContent=fmt(available);document.getElementById('fullCost').textContent=fmt(shop.cost);document.getElementById('fullLeft').innerHTML='<span class="'+(left>=0?'green':'red')+'">'+(left>=0?fmt(left):'-'+fmt(Math.abs(left)))+'</span>';document.getElementById('extraExchange').textContent=need>0?(rate>0?days(extraMin):'Set rate'):'0.00 days';save()}
 function goExchange(i){exchangeIndex=Math.max(0,Math.min(1,i));document.getElementById('exchangeTrack').style.transform=`translateX(-${exchangeIndex*100}%)`;[0,1].forEach(n=>document.getElementById('exchangeTab'+n).classList.toggle('active',n===exchangeIndex))}
 function moveExchange(d){goExchange((exchangeIndex+d+2)%2)}
