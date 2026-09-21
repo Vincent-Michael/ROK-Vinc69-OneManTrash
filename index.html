@@ -139,7 +139,30 @@ function makeShopRows(){['trainingRows','healingRows','resourceRows'].forEach(id
 function clampExchange(type,i){let o=Math.max(0,+document.getElementById(type+'Own'+i).value||0),e=Math.max(0,+document.getElementById(type+'Ex'+i).value||0);const max=Math.min(o,EXCHANGE_LIMIT);if(e>max)document.getElementById(type+'Ex'+i).value=max;if(e<0)document.getElementById(type+'Ex'+i).value=0}
 function maxExchange(type,i){const o=Math.max(0,+document.getElementById(type+'Own'+i).value||0);document.getElementById(type+'Ex'+i).value=Math.min(o,EXCHANGE_LIMIT);calc()}
 function clampShop(i){const el=document.getElementById('shopQty'+i);let q=Math.floor(+el.value||0);q=Math.max(0,Math.min(shopItems[i].limit,q));el.value=q}
-function maxShop(i){document.getElementById('shopQty'+i).value=shopItems[i].limit;calc()}
+function getAvailableChits(){
+  let exchangedMinutes=0;
+  ['building','research'].forEach(type=>defs.forEach((d,i)=>{
+    const owned=Math.max(0,+document.getElementById(type+'Own'+i).value||0);
+    const exchanged=Math.min(owned,EXCHANGE_LIMIT,Math.max(0,+document.getElementById(type+'Ex'+i).value||0));
+    exchangedMinutes+=exchanged*d.min;
+  }));
+  const rate=Math.max(0,+document.getElementById('rate').value||0);
+  const existing=Math.max(0,+document.getElementById('existingChits').value||0);
+  return exchangedMinutes*rate+existing;
+}
+function maxShop(i){
+  const available=getAvailableChits();
+  let otherCost=0;
+  shopItems.forEach((item,j)=>{
+    if(j===i)return;
+    const q=Math.max(0,Math.min(item.limit,Math.floor(+document.getElementById('shopQty'+j).value||0)));
+    otherCost+=q*item.price;
+  });
+  const remaining=Math.max(0,available-otherCost);
+  const maxAffordable=Math.floor(remaining/shopItems[i].price);
+  document.getElementById('shopQty'+i).value=Math.min(shopItems[i].limit,maxAffordable);
+  calc();
+}
 function calcType(type){let total=0,ex=0,left=0;defs.forEach((d,i)=>{const o=Math.max(0,+document.getElementById(type+'Own'+i).value||0),e=Math.min(o,EXCHANGE_LIMIT,Math.max(0,+document.getElementById(type+'Ex'+i).value||0)),l=o-e;document.getElementById(type+'Ex'+i).value=e;total+=o*d.min;ex+=e*d.min;left+=l*d.min;document.getElementById(type+'Left'+i).textContent=fmt(l);document.getElementById(type+'Time'+i).textContent=nice(l*d.min);document.getElementById(type+'LimitUse'+i).textContent=fmt(e)});return{total,ex,left}}
 function calcShop(){let cost=0,trainingMin=0,healingMin=0;shopItems.forEach((item,i)=>{const q=Math.max(0,Math.min(item.limit,Math.floor(+document.getElementById('shopQty'+i).value||0))),rowCost=q*item.price;document.getElementById('shopQty'+i).value=q;cost+=rowCost;if(item.category==='Training')trainingMin+=q*item.min;if(item.category==='Healing')healingMin+=q*item.min;document.getElementById('shopItemCost'+i).textContent=fmt(rowCost);document.getElementById('shopLimitUse'+i).textContent=fmt(q)});return{cost,trainingMin,healingMin}}
 function calc(){const b=calcType('building'),r=calcType('research'),rate=Math.max(0,+document.getElementById('rate').value||0),existing=Math.max(0,+document.getElementById('existingChits').value||0),received=(b.ex+r.ex)*rate,shop=calcShop(),available=received+existing,left=available-shop.cost,need=Math.max(0,-left),extraMin=rate>0?need/rate:0;
