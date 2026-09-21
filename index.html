@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>RoK One Man's Trash Calculator</title>
+<style>
+:root{--bg:#0f1218;--panel:#181d27;--panel2:#202634;--panel3:#11161f;--text:#eef2f7;--muted:#95a0b0;--line:#30394a;--gold:#f1c75b;--green:#79d2a6;--red:#ff8a8a;--blue:#86b7ff;--orange:#ffbc73;--purple:#c997ff;--accent:#9a7620}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#0c0f15,#151a24);color:var(--text)}
+.wrap{max-width:1500px;margin:auto;padding:18px 16px 28px}.head{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:12px}.head h1{margin:0;font-size:clamp(22px,3vw,34px)}.head p{margin:4px 0 0;color:var(--muted);font-size:13px}
+button{border:1px solid var(--line);background:#252d3b;color:var(--text);border-radius:10px;padding:9px 12px;font-weight:800;cursor:pointer}button:hover{filter:brightness(1.12)}button.primary{background:#8f6d18;border-color:#b78d21}.reset{white-space:nowrap}
+.summary{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:10px}.stat{background:rgba(31,38,52,.96);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0}.stat small{display:block;color:var(--muted);font-size:11px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.stat strong{font-size:19px;white-space:nowrap}.gold{color:var(--gold)}.green{color:var(--green)}.blue{color:var(--blue)}.red{color:var(--red)}.orange{color:var(--orange)}.purple{color:var(--purple)}
+.compactbar{display:flex;gap:10px;align-items:end;flex-wrap:wrap;background:rgba(24,29,39,.95);border:1px solid var(--line);border-radius:12px;padding:9px 12px;margin-bottom:10px}.field{display:flex;flex-direction:column;gap:4px}.field label{font-size:11px;color:var(--muted)}input{background:#0f141c;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px 8px;font-size:13px}input:focus{outline:2px solid #416aa3;border-color:transparent}.compactbar input{width:105px}.hint{font-size:11px;color:var(--muted)}
+.main{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:10px;align-items:start}.sliderCard{background:rgba(24,29,39,.96);border:1px solid var(--line);border-radius:15px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.2)}
+.sliderHead{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 12px;border-bottom:1px solid var(--line);background:#171c26}.sliderHead h2{margin:0;font-size:17px}.tabs{display:flex;gap:6px;flex-wrap:wrap}.tab{padding:6px 9px;border-radius:8px;font-size:12px;background:#11161f;color:var(--muted)}.tab.active{background:#8f6d18;color:#fff;border-color:#b78d21}
+.viewport{overflow:hidden}.track{display:flex;transition:transform .28s ease}.slide{min-width:100%;padding:10px}.slideTop{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}.slideTitle{font-weight:900;font-size:15px}.slideMeta{font-size:11px;color:var(--muted);text-align:right}
+.speedGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.speedItem{background:#11161f;border:1px solid var(--line);border-radius:10px;padding:8px}.speedLabel{font-weight:900;font-size:13px;margin-bottom:6px;color:#e7ebf0}.miniGrid{display:grid;grid-template-columns:1fr 1fr;gap:5px}.miniField label{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:2px}.miniField input{width:100%;padding:6px 7px}.speedFoot{margin-top:5px;padding-top:5px;border-top:1px solid #252d3a;display:flex;justify-content:space-between;gap:5px;font-size:10px;color:var(--muted)}.speedFoot b{color:#dce3ea}
+.shopGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.shopItem{background:#11161f;border:1px solid var(--line);border-radius:10px;padding:9px}.shopItemTop{display:flex;justify-content:space-between;gap:8px;align-items:start}.shopName{font-weight:900;font-size:12px;line-height:1.2}.discount{padding:3px 6px;border-radius:999px;background:#38245d;color:#e3d0ff;font-size:10px;font-weight:900;white-space:nowrap}.shopInfo{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:7px 0}.shopInfo div{background:#171d28;border-radius:7px;padding:5px;text-align:center}.shopInfo small{display:block;color:var(--muted);font-size:8px;text-transform:uppercase}.shopInfo b{font-size:11px}.buyLine{display:flex;align-items:center;gap:7px}.buyLine label{font-size:10px;color:var(--muted)}.buyLine input{width:76px}.itemCost{margin-left:auto;font-size:11px;color:var(--gold);font-weight:900}
+.bottomSummary{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:0 10px 10px}.bottomSummary .stat{padding:8px 9px}.bottomSummary .stat strong{font-size:15px}.status{padding:0 10px 10px;font-size:12px}.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:#11161f;border:1px solid var(--line);color:var(--muted);font-size:11px}.pill.good{border-color:#2b6e53;color:#9be0bd}.pill.bad{border-color:#764343;color:#ffaaaa}
+.resultStrip{margin-top:10px;background:rgba(24,29,39,.96);border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}.resultCell{background:#11161f;border:1px solid #28303f;border-radius:9px;padding:8px}.resultCell small{display:block;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}.resultCell b{font-size:13px}.copyright{text-align:center;margin-top:12px;color:#7f8997;font-size:11px}
+.navBtns{display:flex;gap:5px}.navBtns button{padding:5px 8px;font-size:12px}
+@media(max-width:1180px){.summary{grid-template-columns:repeat(3,1fr)}.main{grid-template-columns:1fr}.speedGrid{grid-template-columns:repeat(4,1fr)}.shopGrid{grid-template-columns:repeat(3,1fr)}.resultStrip{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.wrap{padding:12px 8px 24px}.head{align-items:flex-start}.head p{display:none}.summary{grid-template-columns:repeat(2,1fr)}.speedGrid{grid-template-columns:repeat(2,1fr)}.shopGrid{grid-template-columns:1fr 1fr}.bottomSummary{grid-template-columns:repeat(2,1fr)}.resultStrip{grid-template-columns:repeat(2,1fr)}.tabs{display:none}.sliderHead h2{font-size:15px}.stat strong{font-size:17px}}
+@media(max-width:460px){.shopGrid{grid-template-columns:1fr}.speedGrid{grid-template-columns:1fr 1fr}.summary{grid-template-columns:1fr 1fr}.resultStrip{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div><h1>One Man's Trash — Exchange & Shop Calculator</h1><p>Compact 2-slider layout for exchange planning and shop purchases.</p></div>
+    <button class="reset" onclick="resetAll()">Reset</button>
+  </div>
+
+  <div class="summary">
+    <div class="stat"><small>Building Total</small><strong id="bTotal" class="blue">0.00 d</strong></div>
+    <div class="stat"><small>Research Total</small><strong id="rTotal" class="blue">0.00 d</strong></div>
+    <div class="stat"><small>Total Exchanged</small><strong id="exTotal" class="green">0.00 d</strong></div>
+    <div class="stat"><small>Chits Received</small><strong id="chits" class="gold">0</strong></div>
+    <div class="stat"><small>Shop Cost</small><strong id="shopCostTop" class="orange">0</strong></div>
+    <div class="stat"><small>Chits After Shop</small><strong id="afterShopTop" class="green">0</strong></div>
+  </div>
+
+  <div class="compactbar">
+    <div class="field"><label>Chits / exchanged minute</label><input id="rate" type="number" min="0" step="0.01" value="1" oninput="calc()"></div>
+    <div class="field"><label>Existing Caravan Chits</label><input id="existingChits" type="number" min="0" step="1" value="0" oninput="calc()"></div>
+    <span class="hint">Default: 1 minute = 1 Chit • 3h = 180 Chits</span>
+  </div>
+
+  <div class="main">
+    <section class="sliderCard">
+      <div class="sliderHead">
+        <h2>♻️ Exchange Slider</h2>
+        <div class="tabs">
+          <button class="tab active" id="exchangeTab0" onclick="goExchange(0)">🏗️ Building</button>
+          <button class="tab" id="exchangeTab1" onclick="goExchange(1)">🔬 Research</button>
+        </div>
+        <div class="navBtns"><button onclick="moveExchange(-1)">‹</button><button onclick="moveExchange(1)">›</button></div>
+      </div>
+      <div class="viewport" id="exchangeViewport">
+        <div class="track" id="exchangeTrack">
+          <div class="slide">
+            <div class="slideTop"><div class="slideTitle">🏗️ Building Speedups</div><div class="slideMeta">Left <b id="bLeft">0.00 days</b> • Exchanged <b id="bEx">0.00 days</b></div></div>
+            <div class="speedGrid" id="buildingRows"></div>
+          </div>
+          <div class="slide">
+            <div class="slideTop"><div class="slideTitle">🔬 Research Speedups</div><div class="slideMeta">Left <b id="rLeft">0.00 days</b> • Exchanged <b id="rEx">0.00 days</b></div></div>
+            <div class="speedGrid" id="researchRows"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sliderCard">
+      <div class="sliderHead">
+        <h2>🛒 Shop Slider</h2>
+        <div class="tabs">
+          <button class="tab active" id="shopTab0" onclick="goShop(0)">Training</button>
+          <button class="tab" id="shopTab1" onclick="goShop(1)">Healing</button>
+          <button class="tab" id="shopTab2" onclick="goShop(2)">Resources</button>
+        </div>
+        <div class="navBtns"><button onclick="moveShop(-1)">‹</button><button onclick="moveShop(1)">›</button></div>
+      </div>
+      <div class="viewport" id="shopViewport">
+        <div class="track" id="shopTrack">
+          <div class="slide"><div class="slideTop"><div class="slideTitle">⚔️ Training Speedups</div><div class="slideMeta">Bought <b id="trainingBought">0.00 d</b></div></div><div class="shopGrid" id="trainingRows"></div></div>
+          <div class="slide"><div class="slideTop"><div class="slideTitle">❤️ Healing Speedups</div><div class="slideMeta">Bought <b id="healingBought">0.00 d</b></div></div><div class="shopGrid" id="healingRows"></div></div>
+          <div class="slide"><div class="slideTop"><div class="slideTitle">📦 Resources</div><div class="slideMeta">Select desired quantities</div></div><div class="shopGrid" id="resourceRows"></div></div>
+        </div>
+      </div>
+      <div class="bottomSummary">
+        <div class="stat"><small>Available</small><strong id="shopAvailable" class="gold">0</strong></div>
+        <div class="stat"><small>Shop Cost</small><strong id="shopCost" class="orange">0</strong></div>
+        <div class="stat"><small>Chits Left</small><strong id="shopLeft" class="green">0</strong></div>
+        <div class="stat"><small>Extra Needed</small><strong id="shopNeed" class="red">0</strong></div>
+      </div>
+      <div class="status" id="shopStatus"></div>
+    </section>
+  </div>
+
+  <div class="resultStrip">
+    <div class="resultCell"><small>Building remaining</small><b id="sumBLeft">0.00 days</b></div>
+    <div class="resultCell"><small>Research remaining</small><b id="sumRLeft">0.00 days</b></div>
+    <div class="resultCell"><small>Total remaining</small><b id="sumLeft">0.00 days</b></div>
+    <div class="resultCell"><small>Total Chits available</small><b id="fullAvailable" class="gold">0</b></div>
+    <div class="resultCell"><small>Chits after shopping</small><b id="fullLeft">0</b></div>
+    <div class="resultCell"><small>Extra exchange required</small><b id="extraExchange">0.00 days</b></div>
+  </div>
+
+  <span id="sumBEx" hidden></span><span id="sumREx" hidden></span><span id="sumChits" hidden></span><span id="fullReceived" hidden></span><span id="fullExisting" hidden></span><span id="fullCost" hidden></span>
+  <div class="copyright">Made by <b>Vinc69cmAløT#1689</b> • 2026</div>
+</div>
+<script>
+const defs=[
+  {label:'1 min',min:1},{label:'5 min',min:5},{label:'10 min',min:10},{label:'15 min',min:15},{label:'30 min',min:30},
+  {label:'60 min',min:60},{label:'3 h',min:180},{label:'8 h',min:480},{label:'15 h',min:900},{label:'24 h',min:1440},{label:'3 d',min:4320}
+];
+const shopItems=[
+  {name:'8-Hour Training',category:'Training',discount:'75%',price:480,limit:1300,min:480},
+  {name:'60-Min Training',category:'Training',discount:'50%',price:120,limit:300,min:60},
+  {name:'3-Hour Training',category:'Training',discount:'40%',price:450,limit:100,min:180},
+  {name:'8-Hour Training',category:'Training',discount:'25%',price:1500,limit:50,min:480},
+  {name:'24-Hour Training',category:'Training',discount:'—',price:6000,limit:20,min:1440},
+  {name:'60-Min Healing',category:'Healing',discount:'50%',price:120,limit:1000,min:60},
+  {name:'3-Hour Healing',category:'Healing',discount:'40%',price:450,limit:500,min:180},
+  {name:'8-Hour Healing',category:'Healing',discount:'25%',price:1500,limit:200,min:480},
+  {name:'24-Hour Healing',category:'Healing',discount:'—',price:6000,limit:100,min:1440},
+  {name:'500,000 Food',category:'Resource',discount:'20%',price:750,limit:1000},
+  {name:'500,000 Wood',category:'Resource',discount:'20%',price:750,limit:1000},
+  {name:'375,000 Stone',category:'Resource',discount:'20%',price:750,limit:1000},
+  {name:'200,000 Gold',category:'Resource',discount:'20%',price:750,limit:1000}
+];
+let exchangeIndex=0,shopIndex=0;
+function fmt(n){return Math.round(n).toLocaleString('en-US')}
+function days(min){return (min/1440).toFixed(2)+' days'}
+function nice(min){if(min===0)return '0m';const d=Math.floor(min/1440),h=Math.floor((min%1440)/60),m=Math.round(min%60);return [d?d+'d':'',h?h+'h':'',m?m+'m':''].filter(Boolean).join(' ')}
+function makeRows(type){const body=document.getElementById(type+'Rows');body.innerHTML='';defs.forEach((d,i)=>{const el=document.createElement('div');el.className='speedItem';el.innerHTML=`<div class="speedLabel">${d.label}</div><div class="miniGrid"><div class="miniField"><label>Owned</label><input id="${type}Own${i}" type="number" min="0" step="1" value="0" oninput="clampExchange('${type}',${i});calc()"></div><div class="miniField"><label>Exchange</label><input id="${type}Ex${i}" type="number" min="0" step="1" value="0" oninput="clampExchange('${type}',${i});calc()"></div></div><div class="speedFoot"><span>Left <b id="${type}Left${i}">0</b></span><span id="${type}Time${i}">0m</span></div>`;body.appendChild(el)})}
+function makeShopRows(){['trainingRows','healingRows','resourceRows'].forEach(id=>document.getElementById(id).innerHTML='');shopItems.forEach((item,i)=>{const target=document.getElementById(item.category.toLowerCase()+'Rows');const el=document.createElement('div');el.className='shopItem';el.innerHTML=`<div class="shopItemTop"><div class="shopName">${item.name}</div>${item.discount==='—'?'':`<span class="discount">${item.discount}</span>`}</div><div class="shopInfo"><div><small>Price</small><b>${fmt(item.price)}</b></div><div><small>Limit</small><b>${fmt(item.limit)}</b></div><div><small>Type</small><b>${item.category}</b></div></div><div class="buyLine"><label>Buy</label><input id="shopQty${i}" type="number" min="0" max="${item.limit}" step="1" value="0" oninput="clampShop(${i});calc()"><span class="itemCost" id="shopItemCost${i}">0</span></div>`;target.appendChild(el)})}
+function clampExchange(type,i){let o=+document.getElementById(type+'Own'+i).value||0,e=+document.getElementById(type+'Ex'+i).value||0;if(e>o)document.getElementById(type+'Ex'+i).value=o;if(e<0)document.getElementById(type+'Ex'+i).value=0}
+function clampShop(i){const el=document.getElementById('shopQty'+i);let q=Math.floor(+el.value||0);q=Math.max(0,Math.min(shopItems[i].limit,q));el.value=q}
+function calcType(type){let total=0,ex=0,left=0;defs.forEach((d,i)=>{const o=Math.max(0,+document.getElementById(type+'Own'+i).value||0),e=Math.min(o,Math.max(0,+document.getElementById(type+'Ex'+i).value||0)),l=o-e;total+=o*d.min;ex+=e*d.min;left+=l*d.min;document.getElementById(type+'Left'+i).textContent=fmt(l);document.getElementById(type+'Time'+i).textContent=nice(l*d.min)});return{total,ex,left}}
+function calcShop(){let cost=0,trainingMin=0,healingMin=0;shopItems.forEach((item,i)=>{const q=Math.max(0,Math.min(item.limit,Math.floor(+document.getElementById('shopQty'+i).value||0))),rowCost=q*item.price;cost+=rowCost;if(item.category==='Training')trainingMin+=q*item.min;if(item.category==='Healing')healingMin+=q*item.min;document.getElementById('shopItemCost'+i).textContent=fmt(rowCost)});return{cost,trainingMin,healingMin}}
+function calc(){const b=calcType('building'),r=calcType('research'),rate=Math.max(0,+document.getElementById('rate').value||0),existing=Math.max(0,+document.getElementById('existingChits').value||0),received=(b.ex+r.ex)*rate,shop=calcShop(),available=received+existing,left=available-shop.cost,need=Math.max(0,-left),extraMin=rate>0?need/rate:0;
+ document.getElementById('bTotal').textContent=(b.total/1440).toFixed(2)+' d';document.getElementById('rTotal').textContent=(r.total/1440).toFixed(2)+' d';document.getElementById('exTotal').textContent=((b.ex+r.ex)/1440).toFixed(2)+' d';document.getElementById('chits').textContent=fmt(received);document.getElementById('shopCostTop').textContent=fmt(shop.cost);document.getElementById('afterShopTop').textContent=(left>=0?fmt(left):'-'+fmt(Math.abs(left)));document.getElementById('afterShopTop').className=left>=0?'green':'red';
+ document.getElementById('bLeft').textContent=days(b.left);document.getElementById('rLeft').textContent=days(r.left);document.getElementById('bEx').textContent=days(b.ex);document.getElementById('rEx').textContent=days(r.ex);document.getElementById('sumBEx').textContent=days(b.ex);document.getElementById('sumREx').textContent=days(r.ex);document.getElementById('sumBLeft').textContent=days(b.left);document.getElementById('sumRLeft').textContent=days(r.left);document.getElementById('sumLeft').textContent=days(b.left+r.left);document.getElementById('sumChits').textContent=fmt(received);
+ document.getElementById('shopAvailable').textContent=fmt(available);document.getElementById('shopCost').textContent=fmt(shop.cost);document.getElementById('shopLeft').textContent=fmt(Math.max(0,left));document.getElementById('shopNeed').textContent=fmt(need);document.getElementById('trainingBought').textContent=(shop.trainingMin/1440).toFixed(2)+' d';document.getElementById('healingBought').textContent=(shop.healingMin/1440).toFixed(2)+' d';
+ const status=document.getElementById('shopStatus');if(shop.cost===0)status.innerHTML='<span class="pill">No shop items selected</span>';else if(left>=0)status.innerHTML=`<span class="pill good">✓ Enough Chits — ${fmt(left)} left</span>`;else status.innerHTML=`<span class="pill bad">Need ${fmt(need)} more Chits • ${days(extraMin)} extra exchange</span>`;
+ document.getElementById('fullReceived').textContent=fmt(received);document.getElementById('fullExisting').textContent=fmt(existing);document.getElementById('fullAvailable').textContent=fmt(available);document.getElementById('fullCost').textContent=fmt(shop.cost);document.getElementById('fullLeft').innerHTML='<span class="'+(left>=0?'green':'red')+'">'+(left>=0?fmt(left):'-'+fmt(Math.abs(left)))+'</span>';document.getElementById('extraExchange').textContent=need>0?(rate>0?days(extraMin):'Set rate'):'0.00 days';save()}
+function goExchange(i){exchangeIndex=Math.max(0,Math.min(1,i));document.getElementById('exchangeTrack').style.transform=`translateX(-${exchangeIndex*100}%)`;[0,1].forEach(n=>document.getElementById('exchangeTab'+n).classList.toggle('active',n===exchangeIndex))}
+function moveExchange(d){goExchange((exchangeIndex+d+2)%2)}
+function goShop(i){shopIndex=Math.max(0,Math.min(2,i));document.getElementById('shopTrack').style.transform=`translateX(-${shopIndex*100}%)`;[0,1,2].forEach(n=>document.getElementById('shopTab'+n).classList.toggle('active',n===shopIndex))}
+function moveShop(d){goShop((shopIndex+d+3)%3)}
+function addSwipe(el,prev,next){let x=null;el.addEventListener('touchstart',e=>x=e.touches[0].clientX,{passive:true});el.addEventListener('touchend',e=>{if(x===null)return;const dx=e.changedTouches[0].clientX-x;if(Math.abs(dx)>45)(dx<0?next:prev)();x=null},{passive:true})}
+function resetAll(){if(!confirm('Reset all values?'))return;['building','research'].forEach(t=>defs.forEach((_,i)=>{document.getElementById(t+'Own'+i).value=0;document.getElementById(t+'Ex'+i).value=0}));shopItems.forEach((_,i)=>document.getElementById('shopQty'+i).value=0);document.getElementById('rate').value=1;document.getElementById('existingChits').value=0;localStorage.removeItem('rokExchangeCalc');calc()}
+function save(){const data={rate:document.getElementById('rate').value,existingChits:document.getElementById('existingChits').value,values:{},shop:{}};['building','research'].forEach(t=>defs.forEach((_,i)=>{data.values[t+'Own'+i]=document.getElementById(t+'Own'+i).value;data.values[t+'Ex'+i]=document.getElementById(t+'Ex'+i).value}));shopItems.forEach((_,i)=>data.shop['shopQty'+i]=document.getElementById('shopQty'+i).value);localStorage.setItem('rokExchangeCalc',JSON.stringify(data))}
+function load(){try{const d=JSON.parse(localStorage.getItem('rokExchangeCalc'));if(!d)return;if(d.rate!=null)document.getElementById('rate').value=d.rate;if(d.existingChits!=null)document.getElementById('existingChits').value=d.existingChits;Object.entries(d.values||{}).forEach(([k,v])=>{const el=document.getElementById(k);if(el)el.value=v});Object.entries(d.shop||{}).forEach(([k,v])=>{const el=document.getElementById(k);if(el)el.value=v})}catch(e){}}
+makeRows('building');makeRows('research');makeShopRows();load();calc();goExchange(0);goShop(0);addSwipe(document.getElementById('exchangeViewport'),()=>moveExchange(-1),()=>moveExchange(1));addSwipe(document.getElementById('shopViewport'),()=>moveShop(-1),()=>moveShop(1));
+</script>
+</body>
+</html>
